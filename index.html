@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Clima en Praia de Itamambuca</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; background: #e0f7fa; }
+    h1 { text-align: center; }
+    .card { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .day { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Clima en Praia de Itamambuca</h1>
+  <div id="current-weather" class="card">Cargando clima actual...</div>
+  <h2>Pronóstico de 14 días</h2>
+  <div id="forecast"></div>
+
+  <script>
+    const apiKey = 'UOy4uCK8dyWEUsMdGnLzjQHZqzQoe82u';
+    const lat = -23.3886;  // Coordenadas de Itamambuca
+    const lon = -44.9600;
+
+    async function getWeather() {
+      const url = `https://api.tomorrow.io/v4/weather/forecast?location=${lat},${lon}&timesteps=1d&units=metric&apikey=${apiKey}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      const days = data.timelines.daily;
+      const current = days[0];
+
+      // Clima actual
+      document.getElementById('current-weather').innerHTML = `
+        <div><strong>Hoy:</strong> ${current.values.temperatureAvg}°C</div>
+        <div>Máx: ${current.values.temperatureMax}°C</div>
+        <div>Mín: ${current.values.temperatureMin}°C</div>
+        <div>Prob. lluvia: ${current.values.precipitationProbabilityAvg}%</div>
+      `;
+
+      // Pronóstico 14 días
+      const forecastDiv = document.getElementById('forecast');
+      forecastDiv.innerHTML = days.map(day => {
+        const date = new Date(day.time).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'short' });
+        return `
+          <div class="card">
+            <div class="day">${date}</div>
+            <div>Temp: ${day.values.temperatureMin}°C - ${day.values.temperatureMax}°C</div>
+            <div>Prob. lluvia: ${day.values.precipitationProbabilityAvg}%</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    getWeather();
+  </script>
+</body>
+</html>
